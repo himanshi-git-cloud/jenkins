@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    environment {
+        TF_WORKSPACE = 'default' // Specify your Terraform workspace
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Pulling Terraform code from Git repository'
+                git branch: 'main', url: 'https://github.com/himanshi-git-cloud/terraform-.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                echo 'Initializing Terraform'
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                echo 'Running Terraform Plan'
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                echo 'Applying Terraform Configuration'
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+}

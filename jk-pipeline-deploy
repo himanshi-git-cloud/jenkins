@@ -1,0 +1,35 @@
+pipeline {
+   agent any 
+    stages {
+        stage ('pull') {
+            steps {
+                echo 'pull succsess'
+                // comment
+               git 'https://github.com/rj487/studentapp-ui.git'
+        }
+    }  
+        stage ('build') {
+            steps {
+                sh '/opt/maven/bin/mvn clean package'
+                echo 'Build successful'
+       }
+            
+    }       
+        stage ('test') {
+            steps {
+                echo 'test complete'
+                withSonarQubeEnv(installationName: 'sonar-cred') {
+                   sh '/opt/maven/bin/mvn sonar:sonar'
+            }
+        }
+            
+    }  
+       stage ('deploy') {
+            steps {
+                echo 'application deploy'
+                deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://13.233.251.54:8080/')], contextPath: '/', onFailure: false, war: '**/*.war'
+         }
+       
+       }   
+    }    
+ }
